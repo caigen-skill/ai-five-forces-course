@@ -1,1115 +1,1215 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI五力模型：从提示词到全流程实战搭建</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0ea5e9;
-            --accent: #f59e0b;
-            --bg: #ffffff;
-            --bg-secondary: #f8fafc;
-            --text: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
-            --k-color: #8b5cf6;
-            --p-color: #ec4899;
-            --m-color: #10b981;
-            --e-color: #f59e0b;
-            --c-color: #3b82f6;
-        }
-
-        [data-theme="dark"] {
-            --bg: #0f172a;
-            --bg-secondary: #1e293b;
-            --text: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: #334155;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg);
-            transition: all 0.3s ease;
-        }
-
-        /* Header & Navigation */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            padding: 1rem 2rem;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] .header {
-            background: rgba(15, 23, 42, 0.95);
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--primary);
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            background: linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%);
-            padding: 2rem;
-            margin-top: 80px;
-        }
-
-        .hero-content {
-            max-width: 900px;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .kpmec-badge {
-            display: inline-flex;
-            gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .kpmec-letter {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .kpmec-letter:nth-child(1) { background: var(--k-color); animation-delay: 0s; }
-        .kpmec-letter:nth-child(2) { background: var(--p-color); animation-delay: 0.2s; }
-        .kpmec-letter:nth-child(3) { background: var(--m-color); animation-delay: 0.4s; }
-        .kpmec-letter:nth-child(4) { background: var(--e-color); animation-delay: 0.6s; }
-        .kpmec-letter:nth-child(5) { background: var(--c-color); animation-delay: 0.8s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .instructor {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            display: inline-block;
-        }
-
-        .instructor-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .instructor-title {
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        }
-
-        /* Sections */
-        .section {
-            padding: 5rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 3rem;
-            color: var(--text);
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
-        }
-
-        /* Cards */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text);
-        }
-
-        .card-content {
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        /* Force Cards (5 forces) */
-        .force-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .force-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-        }
-
-        .force-card.knowledge::before { background: var(--k-color); }
-        .force-card.product::before { background: var(--p-color); }
-        .force-card.marketing::before { background: var(--m-color); }
-        .force-card.earnings::before { background: var(--e-color); }
-        .force-card.collaboration::before { background: var(--c-color); }
-
-        /* Prompt Levels */
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .level-card {
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .level-card:hover {
-            transform: scale(1.05);
-        }
-
-        .level-l1 { background: linear-gradient(135deg, #dbeafe, #eff6ff); }
-        .level-l2 { background: linear-gradient(135deg, #d1fae5, #ecfdf5); }
-        .level-l3 { background: linear-gradient(135deg, #fef3c7, #fffbeb); }
-        .level-l4 { background: linear-gradient(135deg, #fce7f3, #fdf2f8); }
-
-        [data-theme="dark"] .level-l1 { background: linear-gradient(135deg, #1e3a5f, #1e293b); }
-        [data-theme="dark"] .level-l2 { background: linear-gradient(135deg, #064e3b, #1e293b); }
-        [data-theme="dark"] .level-l3 { background: linear-gradient(135deg, #713f12, #1e293b); }
-        [data-theme="dark"] .level-l4 { background: linear-gradient(135deg, #831843, #1e293b); }
-
-        .level-badge {
-            display: inline-block;
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Framework Box */
-        .framework-box {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border-left: 4px solid var(--primary);
-        }
-
-        .framework-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .framework-content {
-            line-height: 2;
-        }
-
-        .framework-label {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: var(--primary);
-            color: white;
-            border-radius: 4px;
-            font-weight: 600;
-            margin-right: 0.5rem;
-        }
-
-        /* Flow Diagram */
-        .flow-diagram {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin: 2rem 0;
-        }
-
-        .flow-item {
-            padding: 1.5rem 2rem;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            min-width: 150px;
-        }
-
-        .flow-arrow {
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
-
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 2rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        }
-
-        /* Survival Rules */
-        .rules-list {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .rule-item {
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border-left: 4px solid var(--accent);
-        }
-
-        .rule-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-        }
-
-        .rule-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .rule-content {
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--bg-secondary);
-            padding: 3rem 2rem;
-            text-align: center;
-            border-top: 1px solid var(--border);
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            color: var(--text-secondary);
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: var(--bg);
-                flex-direction: column;
-                padding: 1rem;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .section-title {
-                font-size: 1.8rem;
-            }
-
-            .kpmec-letter {
-                width: 45px;
-                height: 45px;
-                font-size: 1.2rem;
-            }
-        }
-
-        /* Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Highlight */
-        .highlight {
-            background: linear-gradient(120deg, #fde68a 0%, #fde68a 100%);
-            background-repeat: no-repeat;
-            background-size: 100% 40%;
-            background-position: 0 80%;
-        }
-
-        [data-theme="dark"] .highlight {
-            background: linear-gradient(120deg, #854d0e 0%, #854d0e 100%);
-            background-repeat: no-repeat;
-            background-size: 100% 40%;
-            background-position: 0 80%;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI五力模型 · 从提示词到全流程实战搭建</title>
+<style>
+/* =====================================================
+   Huashu-Design · 东方编辑风
+   设计哲学：温润、留白、衬线权威感
+   色彩：陶土棕 + 橄榄绿 + 暖纸白
+   反AI slop：无emoji标题、无渐变背景、无左border accent卡片
+   ===================================================== */
+
+/* ---------- 全局 ---------- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink: #1c1917;
+  --paper: #faf7f2;
+  --warm-bg: #f3efe8;
+  --cool-bg: #edf2f0;
+  --border: #e5e0d8;
+  --border-subtle: #ebe6de;
+
+  --accent-rust: #c2410c;
+  --accent-olive: #78716c;
+  --accent-gold: #b45309;
+
+  --k-color: #7c3aed;
+  --p-color: #db2777;
+  --m-color: #0d9488;
+  --e-color: #d97706;
+  --c-color: #2563eb;
+
+  --radius: 2px;
+  --max-width: 960px;
+  --gap-xl: clamp(3rem, 8vw, 6rem);
+  --gap-lg: clamp(2rem, 5vw, 3.5rem);
+  --gap-md: clamp(1.2rem, 3vw, 2rem);
+}
+
+[data-theme="dark"] {
+  --ink: #e7e5e4;
+  --paper: #1c1917;
+  --warm-bg: #292524;
+  --cool-bg: #1e2420;
+  --border: #44403c;
+  --border-subtle: #3a3530;
+  --accent-rust: #ea580c;
+  --accent-olive: #a8a29e;
+  --accent-gold: #f59e0b;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "PingFang SC", sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+}
+
+/* ---------- 排版 ---------- */
+.serif { font-family: "Georgia", "Noto Serif SC", "STSong", serif; }
+.sans  { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif; }
+.mono  { font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-olive);
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--accent-olive);
+  line-height: 1.6;
+  max-width: 560px;
+}
+
+.section-title-divider {
+  width: 48px;
+  height: 2px;
+  background: var(--accent-rust);
+  margin: 1.5rem 0 2rem;
+}
+
+h3 { font-family: "Georgia", "Noto Serif SC", serif; font-size: 1.25rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
+h4 { font-weight: 700; margin-bottom: 0.5rem; }
+
+/* ---------- 顶部导航 ---------- */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(250,247,242,0.88);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.3s;
+}
+[data-theme="dark"] .nav { background: rgba(28,25,23,0.92); }
+
+.nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav-logo {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.nav-links { display: flex; gap: 1.5rem; list-style: none; }
+
+.nav-links a {
+  color: var(--accent-olive);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+}
+.nav-links a:hover { color: var(--ink); border-bottom-color: var(--accent-rust); }
+
+.nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+.theme-btn {
+  background: none; border: 1px solid var(--border);
+  width: 34px; height: 34px; border-radius: 50%;
+  cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s; color: var(--accent-olive);
+}
+.theme-btn:hover { border-color: var(--accent-rust); color: var(--ink); }
+
+.mobile-toggle {
+  display: none; background: none; border: none;
+  font-size: 1.25rem; cursor: pointer; color: var(--ink); padding: 0.25rem;
+}
+
+/* ---------- 通用布局 ---------- */
+.section {
+  padding: var(--gap-xl) 1.5rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.section-alt {
+  background: var(--warm-bg);
+  padding: var(--gap-xl) 1.5rem;
+}
+
+.section-alt-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 6rem 1.5rem 4rem;
+}
+
+.hero-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-olive);
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.hero-subtitle {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--accent-olive);
+  line-height: 1.5;
+  margin-bottom: 2.5rem;
+  max-width: 480px;
+}
+
+/* KPMEC 五力圈 */
+.kpmec-row {
+  display: flex;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.kpmec-item {
+  width: clamp(44px, 8vw, 64px);
+  height: clamp(44px, 8vw, 64px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 700;
+  color: #fff;
+  animation: kpmec-float 3.5s ease-in-out infinite;
+  cursor: default;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.kpmec-item:nth-child(1) { background: var(--k-color); animation-delay: 0s; }
+.kpmec-item:nth-child(2) { background: var(--p-color); animation-delay: 0.2s; }
+.kpmec-item:nth-child(3) { background: var(--m-color); animation-delay: 0.4s; }
+.kpmec-item:nth-child(4) { background: var(--e-color); animation-delay: 0.6s; }
+.kpmec-item:nth-child(5) { background: var(--c-color); animation-delay: 0.8s; }
+
+@keyframes kpmec-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.kpmec-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.kpmec-label {
+  padding: 0.3rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+.kpmec-label:nth-child(1) { background: var(--k-color); }
+.kpmec-label:nth-child(2) { background: var(--p-color); }
+.kpmec-label:nth-child(3) { background: var(--m-color); }
+.kpmec-label:nth-child(4) { background: var(--e-color); }
+.kpmec-label:nth-child(5) { background: var(--c-color); }
+
+.instructor-block {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent-rust);
+}
+
+.instructor-name { font-weight: 600; }
+.instructor-role { font-size: 0.85rem; color: var(--accent-olive); margin-top: 0.2rem; }
+
+/* ---------- Stats ---------- */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: var(--gap-lg);
+}
+
+.stat {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+
+.stat-number {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-rust);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--accent-olive);
+  margin-top: 0.4rem;
+  line-height: 1.3;
+}
+
+/* ---------- Card (informational, no border accent) ---------- */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--gap-md); margin-top: var(--gap-lg); }
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+.card:hover { box-shadow: 0 2px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+[data-theme="dark"] .card:hover { box-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+
+.card-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-rust);
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.card-text {
+  color: var(--accent-olive);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.card-text ul, .card-text ol { padding-left: 1.25rem; margin-top: 0.5rem; }
+.card-text li { margin-bottom: 0.25rem; }
+.card-text b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Framework Quote ---------- */
+.fw-quote {
+  border-left: 2px solid var(--accent-rust);
+  padding: 1.5rem 2rem;
+  margin: var(--gap-lg) 0;
+  background: var(--cool-bg);
+}
+
+.fw-quote-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.fw-quote-text { color: var(--accent-olive); line-height: 1.8; }
+.fw-quote-text b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Golden Formula ---------- */
+.golden-formula {
+  text-align: center;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: var(--gap-lg) 0;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.05rem;
+  color: var(--accent-rust);
+  font-weight: 600;
+}
+
+/* ---------- Prompt Levels ---------- */
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: var(--gap-lg) 0;
+}
+
+.level-card {
+  padding: 1.75rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.level-card:hover { transform: translateY(-4px); box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+
+.level-badge {
+  display: inline-block;
+  padding: 0.3rem 1.2rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.level-name {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.level-desc { font-size: 0.85rem; color: var(--accent-olive); line-height: 1.5; }
+
+/* Level card themes */
+.lc-l1 { background: #f5f3ff; }
+.lc-l2 { background: #ecfdf5; }
+.lc-l3 { background: #fffbeb; }
+.lc-l4 { background: #fdf2f8; }
+[data-theme="dark"] .lc-l1 { background: #2e1a4a; }
+[data-theme="dark"] .lc-l2 { background: #0a2e1f; }
+[data-theme="dark"] .lc-l3 { background: #3d2a0a; }
+[data-theme="dark"] .lc-l4 { background: #3d0a2a; }
+
+/* ---------- RBTO Table ---------- */
+.rbt-row {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.rbt-letter {
+  font-family: "Georgia", serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-rust);
+  text-align: center;
+}
+
+.rbt-label { font-weight: 600; color: var(--ink); }
+.rbt-desc  { font-size: 0.9rem; color: var(--accent-olive); margin-top: 0.15rem; }
+
+/* ---------- Force section ---------- */
+.force-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.75rem; }
+
+.force-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 0.4rem;
+}
+
+.force-name {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.force-quote {
+  font-size: 1.05rem;
+  color: var(--accent-olive);
+  font-style: italic;
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+}
+
+.force-body {
+  color: var(--accent-olive);
+  line-height: 1.8;
+  margin-bottom: var(--gap-md);
+}
+
+.force-block {
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.force-block-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-olive);
+  margin-bottom: 0.75rem;
+}
+
+.force-block ul, .force-block ol { padding-left: 1.25rem; color: var(--accent-olive); line-height: 1.8; font-size: 0.95rem; }
+.force-block li { margin-bottom: 0.25rem; }
+
+/* Force dot colors */
+.fd-k { background: var(--k-color); }
+.fd-p { background: var(--p-color); }
+.fd-m { background: var(--m-color); }
+.fd-e { background: var(--e-color); }
+.fd-c { background: var(--c-color); }
+
+/* ---------- KPMEC Cycle ---------- */
+.cycle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: var(--gap-lg) 0;
+}
+
+.cycle-step {
+  padding: 1.25rem 1.75rem;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-weight: 600;
+  min-width: 120px;
+  transition: transform 0.2s ease;
+}
+.cycle-step:hover { transform: translateY(-2px); }
+
+.cycle-step-name {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.cycle-step-desc { font-size: 0.75rem; color: var(--accent-olive); font-weight: 400; }
+
+.cycle-arrow { font-size: 1.2rem; color: var(--accent-olive); font-weight: 300; }
+
+/* ---------- Rules ---------- */
+.rules-list { margin-top: var(--gap-lg); }
+
+.rule-item {
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rule-item:last-child { border-bottom: none; }
+
+.rule-number {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--accent-rust);
+  opacity: 0.12;
+  line-height: 1;
+  margin-bottom: -2.5rem;
+  pointer-events: none;
+}
+
+.rule-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+
+.rule-content {
+  color: var(--accent-olive);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+.rule-content b { color: var(--ink); font-weight: 600; }
+
+/* 四象限 */
+.quad-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  margin: var(--gap-xl) 0 var(--gap-md);
+}
+
+/* 十大场景标签 */
+.scene-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.scene-tag {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--accent-olive);
+  font-family: "SF Mono", "Menlo", monospace;
+  transition: all 0.2s ease;
+}
+.scene-tag:hover { border-color: var(--accent-rust); color: var(--ink); }
+
+/* ---------- Footer ---------- */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.footer-title {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+
+.footer-text { font-size: 0.85rem; color: var(--accent-olive); }
+.footer-divider { width: 32px; height: 1px; background: var(--border); margin: 1.5rem auto; }
+
+/* ---------- Misc ---------- */
+.tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+
+.tag {
+  padding: 0.2rem 0.8rem;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--accent-olive);
+}
+
+.text-center { text-align: center; }
+.mt-lg { margin-top: var(--gap-lg); }
+.mt-xl { margin-top: var(--gap-xl); }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 768px) {
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--paper); flex-direction: column; padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border); gap: 0.75rem; }
+  .nav-links.active { display: flex; }
+  .mobile-toggle { display: block; }
+
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .card-grid { grid-template-columns: 1fr; }
+  .level-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+
+  .cycle-row { flex-direction: column; }
+  .cycle-arrow { transform: rotate(90deg); }
+}
+</style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav-container">
-            <a href="#home" class="logo">AI五力模型</a>
-            <ul class="nav-links">
-                <li><a href="#intro">课程导言</a></li>
-                <li><a href="#collaboration">人机协作</a></li>
-                <li><a href="#prompt">提示词工程</a></li>
-                <li><a href="#forces">五力模型</a></li>
-                <li><a href="#rules">生存法则</a></li>
-            </ul>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">🌓</button>
-            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
-        </nav>
-    </header>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1>AI五力模型</h1>
-            <p class="hero-subtitle">从提示词到全流程实战搭建</p>
-            
-            <div class="kpmec-badge">
-                <div class="kpmec-letter">K</div>
-                <div class="kpmec-letter">P</div>
-                <div class="kpmec-letter">M</div>
-                <div class="kpmec-letter">E</div>
-                <div class="kpmec-letter">C</div>
-            </div>
+<!-- ====== 导航 ====== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo">AI 五力模型</a>
+    <ul class="nav-links" id="navMenu">
+      <li><a href="#intro">导言</a></li>
+      <li><a href="#collaboration">人机协作</a></li>
+      <li><a href="#prompt">提示词</a></li>
+      <li><a href="#forces">五力</a></li>
+      <li><a href="#rules">生存法则</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="切换深色/浅色模式" title="切换主题">◐</button>
+      <button class="mobile-toggle" onclick="toggleMenu()" aria-label="菜单">&#9776;</button>
+    </div>
+  </div>
+</nav>
 
-            <div class="kpmec-badge" style="margin-top: 1rem;">
-                <span style="padding: 0.5rem 1rem; background: var(--k-color); color: white; border-radius: 20px; font-weight: 600;">知识力 Knowledge</span>
-                <span style="padding: 0.5rem 1rem; background: var(--p-color); color: white; border-radius: 20px; font-weight: 600;">产品力 Product</span>
-                <span style="padding: 0.5rem 1rem; background: var(--m-color); color: white; border-radius: 20px; font-weight: 600;">市场力 Marketing</span>
-                <span style="padding: 0.5rem 1rem; background: var(--e-color); color: white; border-radius: 20px; font-weight: 600;">变现力 Earnings</span>
-                <span style="padding: 0.5rem 1rem; background: var(--c-color); color: white; border-radius: 20px; font-weight: 600;">协同力 Collaboration</span>
-            </div>
+<!-- ====== Hero ====== -->
+<section id="home" class="hero">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">KPMEC · 人机协作方法论</p>
+    <h1 class="hero-title">AI 五力模型</h1>
+    <p class="hero-subtitle">从提示词到全流程实战搭建 —— 把 AI 当杠杆，撬动百倍结果</p>
 
-            <div class="instructor">
-                <div class="instructor-name">讲师：陈菜根</div>
-                <div class="instructor-title">数字经济博主 | OneX 讲师</div>
-            </div>
+    <div class="kpmec-row">
+      <div class="kpmec-item">K</div>
+      <div class="kpmec-item">P</div>
+      <div class="kpmec-item">M</div>
+      <div class="kpmec-item">E</div>
+      <div class="kpmec-item">C</div>
+    </div>
+
+    <div class="kpmec-labels">
+      <span class="kpmec-label">知识力</span>
+      <span class="kpmec-label">产品力</span>
+      <span class="kpmec-label">市场力</span>
+      <span class="kpmec-label">变现力</span>
+      <span class="kpmec-label">协同力</span>
+    </div>
+
+    <div class="instructor-block">
+      <div class="instructor-name">讲师：陈菜根</div>
+      <div class="instructor-role">数字经济博主 &nbsp;|&nbsp; OneX 讲师</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 课程导言 ====== -->
+<section id="intro" class="section">
+  <p class="section-label">导言</p>
+  <h2 class="section-title">为什么你必须学会用 AI</h2>
+  <p class="section-subtitle">一场不可回避的能力革命 · 当智力供给不再稀缺，核心竞争力线直接拉升。</p>
+  <div class="section-title-divider"></div>
+
+  <div class="card-grid">
+    <div class="card">
+      <p class="card-tag">时代背景</p>
+      <h3 class="card-title">AI 协同新纪元</h3>
+      <div class="card-text">
+        <p>2023 年以来，以 ChatGPT 为代表的大语言模型横空出世，标志着人类进入 AI 协同生产力新纪元。</p>
+        <p style="margin-top:0.75rem;">当智力供给不再稀缺，创业者和职场人的「核心竞争力线」直接拉升 —— 要么退出旧竞争，要么换道重来。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-tag">全球数据</p>
+      <h3 class="card-title">AI 使用现状</h3>
+      <div class="card-text">
+        <p style="margin-bottom:0.5rem;">截至 2026 年 2 月，全球 81 亿人中：</p>
+        <ul>
+          <li><b>68 亿</b>从未使用 AI <span style="color:var(--accent-olive);">(84%)</span></li>
+          <li><b>13 亿</b>免费聊天用户 <span style="color:var(--accent-olive);">(16%)</span></li>
+          <li><b>1,500 - 2,500 万</b>付费用户 <span style="color:var(--accent-olive);">(0.3%)</span></li>
+          <li><b>200 - 500 万</b>用到编程模版 <span style="color:var(--accent-olive);">(0.04%)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-tag">核心目标</p>
+      <h3 class="card-title">HA × HA 竞争</h3>
+      <div class="card-text">
+        <p style="margin-bottom:0.5rem;"><b>Human + Agent = HA</b></p>
+        <p>把专业能力当支点，把 AI 当杠杆，撬动 <b>100 倍</b>的结果。</p>
+        <p style="margin-top:0.75rem;">让你从「被 AI 替代的人」变成「会用 AI 的 HA」，把 AI 当数字员工，古典组织升级为智能组织。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-number">84%</div>
+      <div class="stat-label">从未用 AI</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">16%</div>
+      <div class="stat-label">免费聊天</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">0.3%</div>
+      <div class="stat-label">付费用户</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">0.04%</div>
+      <div class="stat-label">编程模版用户</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 人机协作 ====== -->
+<section id="collaboration" class="section-alt">
+  <div class="section-alt-inner">
+    <p class="section-label">法则篇</p>
+    <h2 class="section-title">人机协作核心思想</h2>
+    <p class="section-subtitle">人负责做对的事情，AI 负责把事情做对。</p>
+    <div class="section-title-divider"></div>
+
+    <div class="fw-quote">
+      <div class="fw-quote-title">人机协作公式</div>
+      <div class="fw-quote-text">
+        <p><b>人机协作 = 判断力（人）+ 执行力（AI）+ 责任力（人）</b></p>
+        <p style="margin-top:0.5rem;">「兵器」频繁更替，但「兵法」常用常新 —— 学「兵法」优于学「兵器」。从熟用「兵器」到擅用「兵法」，是从「士兵」进阶「将军」的必由之路。</p>
+      </div>
+    </div>
+
+    <h3 class="quad-title">人机协作四象限</h3>
+    <div class="card-grid">
+      <div class="card">
+        <h4 style="color:var(--k-color);">护城河区</h4>
+        <p style="font-size:0.8rem;color:var(--accent-olive);margin-bottom:0.75rem;">人会 × AI 不会</p>
+        <ul style="list-style:none;padding:0;font-size:0.9rem;color:var(--accent-olive);">
+          <li>隐性知识、洞察</li>
+          <li>情感、人脉</li>
+          <li>信用、品牌</li>
+        </ul>
+        <p style="margin-top:0.75rem;font-weight:600;font-size:0.85rem;">适合：非标任务</p>
+      </div>
+
+      <div class="card">
+        <h4 style="color:var(--m-color);">效率提升区</h4>
+        <p style="font-size:0.8rem;color:var(--accent-olive);margin-bottom:0.75rem;">人会 × AI 会</p>
+        <ul style="list-style:none;padding:0;font-size:0.9rem;color:var(--accent-olive);">
+          <li>人负责判断与兜底</li>
+          <li>AI 执行重复任务</li>
+          <li>职场降本提效</li>
+        </ul>
+        <p style="margin-top:0.75rem;font-weight:600;font-size:0.85rem;">适合：标准任务</p>
+      </div>
+
+      <div class="card">
+        <h4 style="color:var(--p-color);">能力补全区</h4>
+        <p style="font-size:0.8rem;color:var(--accent-olive);margin-bottom:0.75rem;">人不会 × AI 会</p>
+        <ul style="list-style:none;padding:0;font-size:0.9rem;color:var(--accent-olive);">
+          <li>AI 跨越能力边界</li>
+          <li>人负责理解与驾驭</li>
+          <li>补齐短板、组织瘦身</li>
+        </ul>
+        <p style="margin-top:0.75rem;font-weight:600;font-size:0.85rem;">适合：非专业任务</p>
+      </div>
+
+      <div class="card">
+        <h4 style="color:var(--e-color);">未来创新区</h4>
+        <p style="font-size:0.8rem;color:var(--accent-olive);margin-bottom:0.75rem;">人不会 × AI 不会</p>
+        <ul style="list-style:none;padding:0;font-size:0.9rem;color:var(--accent-olive);">
+          <li>人机交互发现新世界</li>
+          <li>战略研判、前沿洞察</li>
+          <li>创新创造</li>
+        </ul>
+        <p style="margin-top:0.75rem;font-weight:600;font-size:0.85rem;">适合：未知任务</p>
+      </div>
+    </div>
+
+    <div class="fw-quote" style="background:var(--warm-bg);">
+      <div class="fw-quote-title">人机协作五要素</div>
+      <div class="fw-quote-text">
+        <p>① <b>大模型</b> · 决定下限 &nbsp; ② <b>知识库</b> · 决定专业度 &nbsp; ③ <b>协作方式</b> · 决定可用性</p>
+        <p style="margin-top:0.25rem;">④ <b>Skills</b> · 决定效率 &nbsp; ⑤ <b>提示词</b> · 决定精度</p>
+      </div>
+    </div>
+
+    <div class="golden-formula">
+      任务效果 = 大模型 × 知识库 × 协作流 × Skills × 提示词
+    </div>
+  </div>
+</section>
+
+<!-- ====== 提示词工程 ====== -->
+<section id="prompt" class="section">
+  <p class="section-label">语言篇</p>
+  <h2 class="section-title">提示词工程</h2>
+  <p class="section-subtitle">进入 AI 世界的第一把钥匙 · 一切上下文、流水线、技能本质都是提示词的扩展。</p>
+  <div class="section-title-divider"></div>
+
+  <div class="fw-quote">
+    <div class="fw-quote-title">核心认知</div>
+    <div class="fw-quote-text">
+      <p>提示词的本质：<b>领导给 AI 派活的话术</b></p>
+      <p style="margin-top:0.5rem;">提示词是聊出来的，而非写出来的。</p>
+      <p style="margin-top:0.75rem;">差的领导：「你帮我做个方案」→ 员工完全不知从何入手</p>
+      <p>好的领导：「针对北京中高收入女性(25-35 岁)，做护肤品推广方案，突出成分安全，3 页 PPT，简洁专业」→ 员工一次命中</p>
+      <p style="margin-top:0.5rem;"><b>提示词能力 = 你作为「AI 领导」的管理水平</b></p>
+    </div>
+  </div>
+
+  <h3 style="text-align:center;margin:var(--gap-xl) 0 var(--gap-md);">提示词能力四级分级</h3>
+  <div class="level-grid">
+    <div class="level-card lc-l1">
+      <div class="level-badge" style="background:#7c3aed;">L1</div>
+      <div class="level-name">零门槛 · 上手快</div>
+      <div class="level-desc">仅能简单问答<br>无法控制输出质量<br>解决复杂问题困难</div>
+    </div>
+    <div class="level-card lc-l2">
+      <div class="level-badge" style="background:#059669;">L2</div>
+      <div class="level-name">标准场景输出稳定</div>
+      <div class="level-desc">依赖模版 · 灵活度差<br>无法适配非标准化需求<br>有较高调试成本</div>
+    </div>
+    <div class="level-card lc-l3">
+      <div class="level-badge" style="background:#d97706;">L3</div>
+      <div class="level-name">体系化解决复杂任务</div>
+      <div class="level-desc">沉淀可复用资产<br>真正驾驭 AI<br>无明显能力短板</div>
+    </div>
+    <div class="level-card lc-l4">
+      <div class="level-badge" style="background:#db2777;">L4</div>
+      <div class="level-name">主动引导提升输出质量</div>
+      <div class="level-desc">高效解决复杂任务<br>主动引导 AI 工作流</div>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:0.85rem;color:var(--accent-olive);margin-top:0.5rem;">
+    L1 → L2 是入门 &nbsp;|&nbsp; L2 → L3 是进阶 &nbsp;|&nbsp; L3 → L4 是高手
+  </p>
+
+  <!-- RBTO Framework -->
+  <div class="fw-quote" style="background:var(--warm-bg);margin-top:var(--gap-xl);">
+    <div class="fw-quote-title">L2 · RBTO 框架：文生文提示词核心结构</div>
+    <div class="fw-quote-text">
+      <div class="rbt-row"><div class="rbt-letter">R</div><div><span class="rbt-label">Role 角色</span><div class="rbt-desc">你是一位专业、严谨、有经验的【领域/身份】</div></div></div>
+      <div class="rbt-row"><div class="rbt-letter">B</div><div><span class="rbt-label">Background 背景资料</span><div class="rbt-desc">【这里粘贴背景、上下文、参考资料】</div></div></div>
+      <div class="rbt-row"><div class="rbt-letter">T</div><div><span class="rbt-label">Task 任务</span><div class="rbt-desc">请你完成以下任务：1.【具体任务 1】2.【具体任务 2】</div></div></div>
+      <div class="rbt-row"><div class="rbt-letter">O</div><div><span class="rbt-label">Output 输出要求</span><div class="rbt-desc">1.语言风格 2.格式要求 3.内容要求 4.字数要求</div></div></div>
+    </div>
+  </div>
+
+  <!-- 4W Framework -->
+  <div class="fw-quote" style="background:var(--cool-bg);">
+    <div class="fw-quote-title">L2 · 4W 框架：文生图提示词核心结构</div>
+    <div class="fw-quote-text">
+      <p><b>Who</b> 主体 · <b>Where</b> 场景 · <b>When</b> 时间 / 光线 · <b>What</b> 细节 · <b>Style</b> 风格 · <b>参数</b> 分辨率 / 比例</p>
+    </div>
+  </div>
+
+  <!-- Advanced Workflows -->
+  <h3 style="text-align:center;margin:var(--gap-xl) 0 var(--gap-md);">高级提示词工作流</h3>
+  <div class="card-grid">
+    <div class="card">
+      <p class="card-tag">L3</p>
+      <h3 class="card-title">反提示词工作流</h3>
+      <div class="card-text">
+        <p><b>逻辑：</b>将优质内容反向输入 AI，提炼出生成该内容所用的提示词，再以此为模板生成同质量内容。</p>
+        <ol style="margin-top:0.75rem;">
+          <li>找到高质量内容</li>
+          <li>使用反提示词指令提炼框架</li>
+          <li>替换自己的主题与关键词</li>
+          <li>生成你的专属内容</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-tag">L3</p>
+      <h3 class="card-title">元提示词工作流</h3>
+      <div class="card-text">
+        <p><b>逻辑：</b>用 AI 帮你写提示词并生成结果。不需要会写专业提示词，只需用大白话说清需求。</p>
+        <ol style="margin-top:0.75rem;">
+          <li>倒出全部想法（越详细越好）</li>
+          <li>让 AI 生成提示词</li>
+          <li>彩排验证与迭代</li>
+          <li>输出想要的结果</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-tag">L4</p>
+      <h3 class="card-title">提示词链</h3>
+      <div class="card-text">
+        <p><b>逻辑：</b>对于复杂任务拆解成多个步骤，按"输入 → 输出"结构梳理成提示词链。</p>
+        <ol style="margin-top:0.75rem;">
+          <li>Prompt A → output A</li>
+          <li>Prompt B → output B（基于 A）</li>
+          <li>Prompt C → output C（基于 B）</li>
+          <li>沉淀为提示词链资产</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 五力模型 ====== -->
+<section id="forces" class="section-alt">
+  <div class="section-alt-inner">
+    <p class="section-label">五力篇</p>
+    <h2 class="section-title">AI 五力模型 · KPMEC 系统</h2>
+    <p class="section-subtitle">知识力 × 产品力 × 市场力 × 变现力 × 协同力 —— 基于知识开发产品，产品营销触达用户，品牌驱动促进销售，人机协同放大营收。</p>
+    <div class="section-title-divider"></div>
+
+    <!-- Force 1: Knowledge -->
+    <div class="fw-quote" style="background:var(--warm-bg);">
+      <div class="force-header"><div class="force-dot fd-k"></div><div class="force-name" style="color:var(--k-color);">知识力 · Knowledge</div></div>
+      <div class="force-quote">你的专有知识，是 AI 最好的燃料。AI 时代企业真正的护城河不是算力和模型，而是你独有的行业知识、领域理解与专业能力。（黄仁勋）</div>
+
+      <div class="force-block">
+        <div class="force-block-title">知识库搭建五步法</div>
+        <ol>
+          <li><b>知识采集</b> —— 已有知识整理 / 录音拍摄采集</li>
+          <li><b>知识分类</b> —— 企业 / 行业 / 项目 / 个人 / 客户知识</li>
+          <li><b>知识标注</b> —— 每条知识打标签，方便调用</li>
+          <li><b>知识导入</b> —— 云端知识库导入</li>
+          <li><b>知识更新</b> —— 根据时效性更新</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Force 2: Product -->
+    <div class="fw-quote" style="background:var(--warm-bg);margin-top:var(--gap-md);">
+      <div class="force-header"><div class="force-dot fd-p"></div><div class="force-name" style="color:var(--p-color);">产品力 · Product</div></div>
+      <div class="force-quote">产品是你基于 AI 封装的价值。大模型拉平了 Coding 能力，文科生也可以基于 AI Coding 用自然语言开发产品。</div>
+
+      <div class="force-block">
+        <div class="force-block-title">AI 产品层级（自下而上）</div>
+        <ul>
+          <li>① 基础设施层 · 大模型 / 算力服务</li>
+          <li>② 开发工具层 · Agent 框架 / 低代码平台</li>
+          <li>③ 能力组件层 · Skills / 插件 / API / 知识库</li>
+          <li>④ 智能代理层 · 通用 / 垂直 / Multi-Agent</li>
+          <li>⑤ 终端应用层 · AI Native 应用</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Force 3: Marketing -->
+    <div class="fw-quote" style="background:var(--warm-bg);margin-top:var(--gap-md);">
+      <div class="force-header"><div class="force-dot fd-m"></div><div class="force-name" style="color:var(--m-color);">市场力 · Marketing</div></div>
+      <div class="force-quote">用 AI 构建「一人市场部」—— 用多模态树延展创意并积累注意力资产，用多 Agent 分发品牌声量。</div>
+
+      <div class="force-block">
+        <div class="force-block-title">一人新媒体部门 = 一人 + 多 Agent</div>
+        <ul>
+          <li>选题策划 Agent · 热点捕捉、选题判断</li>
+          <li>内容创作 Agent · 脚本撰写、文案优化</li>
+          <li>视觉制作 Agent · 封面图、配图、视频生成</li>
+          <li>分发运营 Agent · 多平台发布、评论区管理</li>
+          <li>数据分析 Agent · 爆款分析、阅读数据</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Force 4: Earnings -->
+    <div class="fw-quote" style="background:var(--warm-bg);margin-top:var(--gap-md);">
+      <div class="force-header"><div class="force-dot fd-e"></div><div class="force-name" style="color:var(--e-color);">变现力 · Earnings</div></div>
+      <div class="force-quote">牢记 AI 使用公式：ROI = 任务价值 / Token 成本。AI 把智能价值封装成可以流动的标准化 Token，正在深刻塑造商业模式结构。</div>
+
+      <div class="force-block">
+        <div class="force-block-title">Token：AI Native 智能组织的工时</div>
+        <p style="font-size:0.95rem;color:var(--accent-olive);"><b>Token 本质：</b>Token = 电力 × 算力 × 模型智能 = 标准化、可计价、可流通的最小智能服务单位。</p>
+        <p style="font-size:0.9rem;color:var(--accent-olive);margin-top:0.75rem;">Token 全链路成本：电力占 31% · GPU 折旧占 46.5% · 数据中心占 13.5% · 模型占 9%。终端价会比出厂价加 25% - 100%。</p>
+      </div>
+    </div>
+
+    <!-- Force 5: Collaboration -->
+    <div class="fw-quote" style="background:var(--warm-bg);margin-top:var(--gap-md);">
+      <div class="force-header"><div class="force-dot fd-c"></div><div class="force-name" style="color:var(--c-color);">协同力 · Collaboration</div></div>
+      <div class="force-quote">用 AI 重构组织协同模式 —— 从古典组织人际协作，到人+Agent 混合协作，再到 AI Native 的 Vibe Agenting。</div>
+
+      <div class="force-block">
+        <div class="force-block-title">AI 重构职场 10 大场景</div>
+        <div class="scene-tags">
+          <span class="scene-tag">会议纪要</span><span class="scene-tag">工作汇报</span><span class="scene-tag">邮件回复</span>
+          <span class="scene-tag">数据整理</span><span class="scene-tag">合同校对</span><span class="scene-tag">人事招聘</span>
+          <span class="scene-tag">事项待办</span><span class="scene-tag">PPT 制作</span><span class="scene-tag">客户咨询</span>
+          <span class="scene-tag">报销整理</span>
         </div>
-    </section>
+      </div>
+    </div>
 
-    <!-- Introduction Section -->
-    <section id="intro" class="section">
-        <h2 class="section-title">课程导言</h2>
-        <p class="section-subtitle">为什么你必须学会用 AI ？</p>
-
-        <div class="card-grid">
-            <div class="card">
-                <div class="card-icon">🚀</div>
-                <div class="card-title">时代背景</div>
-                <div class="card-content">
-                    <p>2023年以来，以ChatGPT为代表的大语言模型横空出世，标志着人类进入AI协同生产力新纪元。</p>
-                    <p style="margin-top: 1rem;">当智力供给不再稀缺，创业者和职场人的「核心竞争力线」直接拉升，要么退出旧竞争，要么换道重来。</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">📊</div>
-                <div class="card-title">全球AI使用现状</div>
-                <div class="card-content">
-                    <ul style="list-style: none; padding-left: 0;">
-                        <li>✓ 全球81亿人中<b>68亿从未用AI</b> (84%)</li>
-                        <li>✓ 免费聊天用户<b>13亿</b> (16%)</li>
-                        <li>✓ 付费$20/月有<b>1500万~2500万人</b> (0.3%)</li>
-                        <li>✓ 用到编程模版的有<b>200万~500万人</b> (0.04%)</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">🎯</div>
-                <div class="card-title">核心目标</div>
-                <div class="card-content">
-                    <p><b>HA-HA 竞争</b></p>
-                    <p style="margin-top: 0.5rem;">Human + Agent = HA</p>
-                    <p style="margin-top: 1rem;">把专业能力当支点，把AI当杠杆，撬动100倍的结果</p>
-                    <p style="margin-top: 1rem;" class="highlight">让你从「被AI替代的人」变成「会用AI的HA」</p>
-                </div>
-            </div>
+    <!-- KPMEC 循环 -->
+    <div class="text-center" style="margin-top:var(--gap-xl);">
+      <h3 style="font-family:Georgia, 'Noto Serif SC', serif;">KPMEC 循环系统</h3>
+      <div class="cycle-row">
+        <div class="cycle-step" style="border-color:var(--k-color);">
+          <div class="cycle-step-name">知识力</div>
+          <div class="cycle-step-desc">专业知识</div>
         </div>
-    </section>
-
-    <!-- Collaboration Section -->
-    <section id="collaboration" class="section" style="background: var(--bg-secondary);">
-        <h2 class="section-title">人机协作核心思想</h2>
-
-        <div class="framework-box">
-            <div class="framework-title">🎯 人机协作公式</div>
-            <div class="framework-content">
-                <p style="font-size: 1.2rem; margin-bottom: 1rem;"><b>人机协作 = 判断力（人）+ 执行力（AI）+ 责任力（人）</b></p>
-                <p>人负责做对的事情，AI负责把事情做对</p>
-                <p style="margin-top: 1rem;">「兵器」频繁更替，但「兵法」常用常新，学「兵法」优于学「兵器」</p>
-            </div>
+        <span class="cycle-arrow">⟶</span>
+        <div class="cycle-step" style="border-color:var(--p-color);">
+          <div class="cycle-step-name">产品力</div>
+          <div class="cycle-step-desc">转化产品</div>
         </div>
-
-        <h3 style="text-align: center; margin: 3rem 0 2rem; font-size: 1.8rem;">人机协作四象限</h3>
-
-        <div class="card-grid">
-            <div class="card">
-                <div class="card-title" style="color: var(--k-color);">🛡️ 护城河区</div>
-                <div class="card-content">
-                    <p><b>人会 × AI不会</b></p>
-                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                        <li>隐性知识、洞察</li>
-                        <li>情感、人脉</li>
-                        <li>信用、品牌</li>
-                    </ul>
-                    <p style="margin-top: 1rem;" class="highlight">适合：非标任务</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title" style="color: var(--p-color);">⚡ 效率提升区</div>
-                <div class="card-content">
-                    <p><b>人会 × AI会</b></p>
-                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                        <li>人负责判断与兜底</li>
-                        <li>AI负责快速执行重复任务</li>
-                        <li>职场办公降本提效</li>
-                    </ul>
-                    <p style="margin-top: 1rem;" class="highlight">适合：标准任务</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title" style="color: var(--m-color);">🚀 能力补全区</div>
-                <div class="card-content">
-                    <p><b>人不会 × AI会</b></p>
-                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                        <li>AI帮你跨越能力边界</li>
-                        <li>人负责理解与驾驭</li>
-                        <li>补齐短板、组织瘦身</li>
-                    </ul>
-                    <p style="margin-top: 1rem;" class="highlight">适合：非专业任务</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title" style="color: var(--e-color);">💡 未来创新区</div>
-                <div class="card-content">
-                    <p><b>人不会 × AI不会</b></p>
-                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                        <li>人和AI交互共同发现新世界</li>
-                        <li>战略研判、前沿洞察</li>
-                        <li>创新创造</li>
-                    </ul>
-                    <p style="margin-top: 1rem;" class="highlight">适合：未知任务</p>
-                </div>
-            </div>
+        <span class="cycle-arrow">⟶</span>
+        <div class="cycle-step" style="border-color:var(--m-color);">
+          <div class="cycle-step-name">市场力</div>
+          <div class="cycle-step-desc">产品营销</div>
         </div>
-
-        <div class="framework-box" style="margin-top: 3rem;">
-            <div class="framework-title">🔑 人机协作五要素</div>
-            <div class="framework-content">
-                <p style="margin-bottom: 0.5rem;">① <b>大模型</b> - 决定下限</p>
-                <p style="margin-bottom: 0.5rem;">② <b>知识库</b> - 决定专业度</p>
-                <p style="margin-bottom: 0.5rem;">③ <b>协作方式</b> - 决定可用性</p>
-                <p style="margin-bottom: 0.5rem;">④ <b>Skills</b> - 决定效率</p>
-                <p>⑤ <b>提示词</b> - 决定精度</p>
-                <p style="margin-top: 1rem; font-weight: 600; color: var(--primary);">黄金公式：任务效果 = 大模型 × 知识库 × 协作流 × Skills × 提示词</p>
-            </div>
+        <span class="cycle-arrow">⟶</span>
+        <div class="cycle-step" style="border-color:var(--e-color);">
+          <div class="cycle-step-name">变现力</div>
+          <div class="cycle-step-desc">促进销售</div>
         </div>
-    </section>
-
-    <!-- Prompt Engineering Section -->
-    <section id="prompt" class="section">
-        <h2 class="section-title">提示词工程</h2>
-        <p class="section-subtitle">进入AI世界的第一把钥匙</p>
-
-        <div class="framework-box">
-            <div class="framework-title">💡 核心认知</div>
-            <div class="framework-content">
-                <p>提示词的本质：<b>领导给AI派活的话术</b></p>
-                <p style="margin-top: 1rem;">记住：<span class="highlight">提示词是聊出来的，而非写出来的！</span></p>
-                <p style="margin-top: 1rem;">差的领导：「你帮我做个方案」→ 员工完全不知从何入手</p>
-                <p>好的领导：「针对北京中高收入女性(25-35岁)，做护肤品推广方案...」→ 员工一次命中</p>
-                <p style="margin-top: 1rem;">提示词能力 = 你作为「AI领导」的管理水平</p>
-            </div>
+        <span class="cycle-arrow">⟶</span>
+        <div class="cycle-step" style="border-color:var(--c-color);">
+          <div class="cycle-step-name">协同力</div>
+          <div class="cycle-step-desc">放大营收</div>
         </div>
+        <span class="cycle-arrow">⟲</span>
+      </div>
+      <p style="color:var(--accent-olive);font-size:0.9rem;">协同积累知识资产，循环迭代</p>
+    </div>
+  </div>
+</section>
 
-        <h3 style="text-align: center; margin: 3rem 0 2rem; font-size: 1.8rem;">提示词能力四级分级</h3>
+<!-- ====== 十大生存法则 ====== -->
+<section id="rules" class="section">
+  <p class="section-label">总结篇</p>
+  <h2 class="section-title">AI 时代的十大生存法则</h2>
+  <p class="section-subtitle">技术革命消灭的不是职业，而是拒绝进化的人。</p>
+  <div class="section-title-divider"></div>
 
-        <div class="level-grid">
-            <div class="level-card level-l1">
-                <div class="level-badge" style="background: #3b82f6; color: white;">L1</div>
-                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">零门槛 · 上手快</h4>
-                <p style="color: var(--text-secondary);">仅能完成简单问答</p>
-                <p style="color: var(--text-secondary); margin-top: 0.5rem;">无法控制输出质量</p>
-                <p style="color: var(--text-secondary);">解决复杂问题</p>
-            </div>
+  <div class="rules-list">
+    <div class="rule-item">
+      <div class="rule-number">01</div>
+      <div class="rule-title">竞争重构 —— 对手是"人机协同体"，而非 AI</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>竞争的本质已从"人与人"转变为"人机协同体"之间的竞争。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>停止对 AI 可靠性的纠结，立即掌握 AI 工具。你的竞争对手是那个已经熟练使用 AI 的同行。</p>
+      </div>
+    </div>
 
-            <div class="level-card level-l2">
-                <div class="level-badge" style="background: #10b981; color: white;">L2</div>
-                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">标准场景输出稳定</h4>
-                <p style="color: var(--text-secondary);">依赖模版 · 灵活度差</p>
-                <p style="color: var(--text-secondary); margin-top: 0.5rem;">无法适配非标准化需求</p>
-                <p style="color: var(--text-secondary);">有较高调试成本</p>
-            </div>
+    <div class="rule-item">
+      <div class="rule-number">02</div>
+      <div class="rule-title">护城河构建 —— 隐性知识是 AI 无法殖民的领地</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>AI 只能压缩已被语言化的显性知识。你从失败、直觉和行业浸润中获得的"不可言传"的经验，是真正的稀缺资产。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>系统化你的"踩坑"经历。将那些"说不清楚但就是知道"的直觉语言化、结构化。</p>
+      </div>
+    </div>
 
-            <div class="level-card level-l3">
-                <div class="level-badge" style="background: #f59e0b; color: white;">L3</div>
-                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">体系化解决复杂任务</h4>
-                <p style="color: var(--text-secondary);">沉淀可复用资产</p>
-                <p style="color: var(--text-secondary); margin-top: 0.5rem;">真正驾驭AI</p>
-                <p style="color: var(--text-secondary);">无明显能力短板</p>
-            </div>
+    <div class="rule-item">
+      <div class="rule-number">03</div>
+      <div class="rule-title">能力升维 —— 深度为锚，跨界为网</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>基于"比较优势"理论，你的价值不在于单一技能的精深，而在于跨界组合的独特性。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>在一个领域深扎作为锚点，同时在两三个相邻领域建立"够用"的知识。训练"连线直觉"。</p>
+      </div>
+    </div>
 
-            <div class="level-card level-l4">
-                <div class="level-badge" style="background: #ec4899; color: white;">L4</div>
-                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">主动引导大幅提升输出质量</h4>
-                <p style="color: var(--text-secondary);">高效解决复杂问题</p>
-                <p style="color: var(--text-secondary); margin-top: 0.5rem;">主动引导AI工作流</p>
-            </div>
-        </div>
+    <div class="rule-item">
+      <div class="rule-number">04</div>
+      <div class="rule-title">认知主权 —— 注意力是唯一的硬通货</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>AI 使信息生产成本趋近于零，深度专注力成为最稀缺的资源。失去专注力即降级为 AI 的"消费终端"。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>保护深度阅读与独立思考的能力。能长时间专注的人是"认知贵族"。</p>
+      </div>
+    </div>
 
-        <div class="framework-box" style="margin-top: 3rem;">
-            <div class="framework-title">📋 L2-RBTO 框架：文生文提示词核心结构</div>
-            <div class="framework-content">
-                <p style="margin-bottom: 1rem;"><span class="framework-label">R</span> <b>Role 角色</b> - 你是一位专业、严谨、有经验的【领域/身份】</p>
-                <p style="margin-bottom: 1rem;"><span class="framework-label">B</span> <b>Background 背景资料</b> - 【这里粘贴背景、上下文、参考资料】</p>
-                <p style="margin-bottom: 1rem;"><span class="framework-label">T</span> <b>Task 任务</b> - 请你完成以下任务：1.【具体任务1】2.【具体任务2】</p>
-                <p><span class="framework-label">O</span> <b>Output 输出要求</b> - 1.语言风格 2.格式要求 3.内容要求 4.字数要求</p>
-                <p style="margin-top: 1rem; font-style: italic; color: var(--text-secondary);">框架逻辑：谁（Role）基于什么信息（Background）做成一件什么事（Task），要以符合我要求的方式告诉我（Output）</p>
-            </div>
-        </div>
+    <div class="rule-item">
+      <div class="rule-number">05</div>
+      <div class="rule-title">信任溢价 —— 信用是唯一的防伪标签</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>在 AI 能伪造一切的时代，"真人且靠谱"产生悖论式升值。信任是重复博弈中"说到做到"的兑现记录。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>积累"信号穿透力"。每一次兑现承诺都是在做 AI 时代最值钱的投资。</p>
+      </div>
+    </div>
 
-        <div class="framework-box">
-            <div class="framework-title">🎨 L2-文生图提示词框架：4W + 风格 + 参数</div>
-            <div class="framework-content">
-                <p style="margin-bottom: 0.5rem;"><b>Who</b> 主体 - 画面主角</p>
-                <p style="margin-bottom: 0.5rem;"><b>Where</b> 场景 - 环境背景</p>
-                <p style="margin-bottom: 0.5rem;"><b>When</b> 时间/光线 - 光线氛围</p>
-                <p style="margin-bottom: 0.5rem;"><b>What</b> 细节 - 服装/动作</p>
-                <p style="margin-bottom: 0.5rem;"><b>Style</b> 风格 - 艺术风格</p>
-                <p><b>参数</b> - 分辨率/比例</p>
-            </div>
-        </div>
+    <div class="rule-item">
+      <div class="rule-number">06</div>
+      <div class="rule-title">价值倒转 —— 好问题比答案更值钱</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>AI 让答案不再稀缺。5 分钟的解答可外包给 AI，55 分钟的定义问题只能由人完成。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>培养提问能力。好问题能打开新的可能性空间，你用问题启动 AI，再用更好的问题挖掘 AI 未想到的方向。</p>
+      </div>
+    </div>
 
-        <h3 style="text-align: center; margin: 3rem 0 2rem; font-size: 1.5rem;">高级提示词工作流</h3>
+    <div class="rule-item">
+      <div class="rule-number">07</div>
+      <div class="rule-title">人类溢价 —— 寻找"因为有人，所以值钱"的场景</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>越是自动化、冰冷的地方，人的温度越值钱。人类是社会性动物，催产素和镜像神经元不响应 AI。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>避开纯效率竞争，进入需要情感连接、深度共情或关键决策的领域。问自己：如果全由 AI 做，客户会失去什么？</p>
+      </div>
+    </div>
 
-        <div class="card-grid">
-            <div class="card">
-                <div class="card-title">🔄 L3-反提示词工作流</div>
-                <div class="card-content">
-                    <p><b>逻辑：</b>将优质内容反向输入AI，提炼生成该内容所使用的提示词</p>
-                    <p style="margin-top: 1rem;"><b>步骤：</b></p>
-                    <ol style="padding-left: 1.5rem; margin-top: 0.5rem;">
-                        <li>找到高质量内容</li>
-                        <li>使用反提示词指令提炼框架</li>
-                        <li>获得提示词模板后，替换自己的主题</li>
-                        <li>用替换后的提示词生成你的专属内容</li>
-                    </ol>
-                </div>
-            </div>
+    <div class="rule-item">
+      <div class="rule-number">08</div>
+      <div class="rule-title">反脆弱 —— 不确定性是普通人的结构性优势</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>基于塔勒布的"反脆弱"理论，大机构在不确定性中因流程冗余而笨重，普通人的轻量级和灵活性是应对高速变化的利器。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>小注押注，快速迭代。不要 All-in 单一判断，建立能吸收错误的生活结构。</p>
+      </div>
+    </div>
 
-            <div class="card">
-                <div class="card-title">🤖 L3-元提示词工作流</div>
-                <div class="card-content">
-                    <p><b>逻辑：</b>不需要会写专业提示词，只需用大白话说清需求</p>
-                    <p style="margin-top: 1rem;"><b>步骤：</b></p>
-                    <ol style="padding-left: 1.5rem; margin-top: 0.5rem;">
-                        <li>倒出全部想法（越详细越好）</li>
-                        <li>让AI生成提示词</li>
-                        <li>彩排验证与迭代</li>
-                        <li>输出想要的结果</li>
-                    </ol>
-                </div>
-            </div>
+    <div class="rule-item">
+      <div class="rule-number">09</div>
+      <div class="rule-title">网络效应 —— 持续输出，将认知变为公开资产</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>AI 降低了内容生产门槛，但也使"独特观点"更稀缺。不输出即不存在，存在才能吸引价值流动。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>持续输出带有真实经历和独立判断的内容。不是为了表演，而是为了在 AI 噪音中建立独特节点。</p>
+      </div>
+    </div>
 
-            <div class="card">
-                <div class="card-title">⛓️ L4-提示词链</div>
-                <div class="card-content">
-                    <p><b>逻辑：</b>对于复杂任务拆解成多个步骤</p>
-                    <p style="margin-top: 1rem;"><b>步骤：</b></p>
-                    <ol style="padding-left: 1.5rem; margin-top: 0.5rem;">
-                        <li>先写prompt A，基于上下文输出output A</li>
-                        <li>再写prompt B，基于output A输出output B</li>
-                        <li>再写prompt C，基于output B输出output C</li>
-                        <li>对提示词链调优，并沉淀为提示词链资产</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="rule-item">
+      <div class="rule-number">10</div>
+      <div class="rule-title">能量管理 —— 峰值认知用于高价值创造</div>
+      <div class="rule-content">
+        <p><b>核心逻辑：</b>时间管理是工业时代的逻辑，能量管理是 AI 时代的逻辑。高阶认知功能（洞察、创造）每日有限。</p>
+        <p style="margin-top:0.4rem;"><b>行动：</b>将最宝贵的"峰值时间"用于思考最重要问题，将低认知成本的任务交给 AI。你的位置在峰值，不在流水线。</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- Five Forces Section -->
-    <section id="forces" class="section" style="background: var(--bg-secondary);">
-        <h2 class="section-title">AI五力模型：KPMEC系统</h2>
-        <p class="section-subtitle">知识力 × 产品力 × 市场力 × 变现力 × 协同力</p>
+  <div class="text-center mt-xl">
+    <p style="font-family:Georgia,'Noto Serif SC',serif;font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;">遇事不决，就问 AI</p>
+    <p style="font-size:0.9rem;color:var(--accent-olive);">用 100 个 AI 实践消除 AI 焦虑 &nbsp;|&nbsp; 用 100 亿 Token 积累 AI 资产</p>
+  </div>
+</section>
 
-        <!-- Force 1: Knowledge -->
-        <div class="card force-card knowledge" style="max-width: 900px; margin: 2rem auto;">
-            <div class="card-icon">📚</div>
-            <div class="card-title" style="color: var(--k-color);">第一力：知识力 Knowledge</div>
-            <div class="card-content">
-                <p><b>核心观点：</b>你的专有知识，是AI最好的燃料</p>
-                <p style="margin-top: 1rem;">AI时代企业真正的护城河不是算力和模型，而是你独有的行业知识、领域理解与专业能力。（黄仁勋）</p>
-                
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">知识库搭建五步法：</p>
-                    <ol style="padding-left: 1.5rem;">
-                        <li>知识采集 - 已有知识整理 / 录音拍摄采集</li>
-                        <li>知识分类 - 企业/行业/项目/个人/客户知识</li>
-                        <li>知识标注 - 每条知识打标签，方便调用</li>
-                        <li>知识导入 - 云端知识库导入</li>
-                        <li>知识更新 - 根据时效性更新</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
+<!-- ====== Footer ====== -->
+<footer class="footer">
+  <div class="footer-title">AI 五力模型：从提示词到全流程实战搭建</div>
+  <p class="footer-text">讲师：陈菜根 · 数字经济博主 | OneX 讲师</p>
+  <div class="footer-divider"></div>
+  <p class="footer-text">© 2026 AI 五力模型课程 · 基于课程内容生成的静态网站</p>
+</footer>
 
-        <!-- Force 2: Product -->
-        <div class="card force-card product" style="max-width: 900px; margin: 2rem auto;">
-            <div class="card-icon">🛠️</div>
-            <div class="card-title" style="color: var(--p-color);">第二力：产品力 Product</div>
-            <div class="card-content">
-                <p><b>核心观点：</b>产品是你基于AI封装的价值</p>
-                <p style="margin-top: 1rem;">大模型拉平了Coding能力，文科生也可以基于AI Coding用自然语言开发产品</p>
-                
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">AI时代的产品四大件：</p>
-                    <ul style="padding-left: 1.5rem;">
-                        <li>基于知识库的上下文</li>
-                        <li>调用大模型的智能</li>
-                        <li>在编排好的pipeline上调用skills</li>
-                        <li>处理复杂任务</li>
-                    </ul>
-                </div>
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const now=html.getAttribute('data-theme');
+  const next=now==='dark'?'light':'dark';
+  html.setAttribute('data-theme',next);
+  localStorage.setItem('theme',next);
+}
+(function(){
+  const saved=localStorage.getItem('theme')||'light';
+  document.documentElement.setAttribute('data-theme',saved);
+})();
 
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">AI产品层级（自下而上）：</p>
-                    <ul style="padding-left: 1.5rem;">
-                        <li>① 基础设施层 - 大模型/算力服务</li>
-                        <li>② 开发工具层 - Agent框架/低代码平台</li>
-                        <li>③ 能力组件层 - Skills/插件/API/知识库</li>
-                        <li>④ 智能代理层 - 通用/垂直/Multi-Agent</li>
-                        <li>⑤ 终端应用层 - AI Native应用</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Force 3: Marketing -->
-        <div class="card force-card marketing" style="max-width: 900px; margin: 2rem auto;">
-            <div class="card-icon">📢</div>
-            <div class="card-title" style="color: var(--m-color);">第三力：市场力 Marketing</div>
-            <div class="card-content">
-                <p><b>核心观点：</b>用AI构建「一人市场部」</p>
-                <p style="margin-top: 1rem;">要用AI工具生成"多模态树"，为GEO提供丰富的内容，沉淀AI时代稀缺的IP注意力资产</p>
-                
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">多模态树：延展创意并积累注意力资产</p>
-                    <p>输入：创意/提示词 → 输出：Post长文/图片/海报/音乐/播客/视频/PPT/HTML</p>
-                    <p style="margin-top: 0.5rem;">再通过媒介矩阵分发：微博/公众号/小红书/音乐App/视频平台/Agent</p>
-                </div>
-
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">一人新媒体部门 = 一人 + 多Agent</p>
-                    <ul style="padding-left: 1.5rem;">
-                        <li>选题策划Agent - 热点捕捉、选题判断</li>
-                        <li>内容创作Agent - 脚本撰写、文案优化</li>
-                        <li>视觉制作Agent - 封面图、配图、视频生成</li>
-                        <li>分发运营Agent - 多平台发布、评论区管理</li>
-                        <li>数据分析Agent - 爆款分析、阅读数据</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Force 4: Earnings -->
-        <div class="card force-card earnings" style="max-width: 900px; margin: 2rem auto;">
-            <div class="card-icon">💰</div>
-            <div class="card-title" style="color: var(--e-color);">第四力：变现力 Earnings</div>
-            <div class="card-content">
-                <p><b>核心观点：</b>牢记AI使用公式：ROI = 任务价值 / token成本</p>
-                <p style="margin-top: 1rem;">把AI当成提高转化率的助销神器，是每个超级sales的标配技能</p>
-                
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">Token：AI Native智能组织的工时</p>
-                    <p><b>Token本质：</b>Token = 电力 × 算力 × 模型智能 = 标准化、可计价、可流通的最小智能服务单位</p>
-                    <p style="margin-top: 1rem;">AI把智能价值封装成可以流动的标准化Token，正在深刻塑造商业模式结构</p>
-                </div>
-
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">企业内的AI销售辅导系统</p>
-                    <ol style="padding-left: 1.5rem;">
-                        <li>录制销售通话或面谈</li>
-                        <li>录音自动转文字</li>
-                        <li>用专业销售教练分析的提示词对录音文字进行多轮互动</li>
-                        <li>让AI当做7×24私人销售教练</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-
-        <!-- Force 5: Collaboration -->
-        <div class="card force-card collaboration" style="max-width: 900px; margin: 2rem auto;">
-            <div class="card-icon">🤝</div>
-            <div class="card-title" style="color: var(--c-color);">第五力：协同力 Collaboration</div>
-            <div class="card-content">
-                <p><b>核心观点：</b>用AI重构组织协同模式</p>
-                
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">协作进化路径：</p>
-                    <ul style="padding-left: 1.5rem;">
-                        <li><b>古典组织</b> - 人际协作</li>
-                        <li><b>人+Agent混合组织</b> - 协作（人判断 + AI执行）</li>
-                        <li><b>AI Native智能组织</b> - Vibe Agenting（所想即所得）</li>
-                    </ul>
-                </div>
-
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">AI重构职场10大场景：</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                        <span>① 会议纪要</span>
-                        <span>② 工作汇报</span>
-                        <span>③ 邮件回复</span>
-                        <span>④ 数据整理</span>
-                        <span>⑤ 合同校对</span>
-                        <span>⑥ 人事招聘</span>
-                        <span>⑦ 事项待办</span>
-                        <span>⑧ PPT制作</span>
-                        <span>⑨ 客户咨询</span>
-                        <span>⑩ 报销整理</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- KPMEC Cycle -->
-        <div class="framework-box" style="max-width: 900px; margin: 3rem auto;">
-            <div class="framework-title">🔄 KPMEC循环系统</div>
-            <div class="framework-content">
-                <div class="flow-diagram">
-                    <div class="flow-item" style="border: 2px solid var(--k-color);">知识力<br><small>专业知识</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item" style="border: 2px solid var(--p-color);">产品力<br><small>转化产品</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item" style="border: 2px solid var(--m-color);">市场力<br><small>产品营销</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item" style="border: 2px solid var(--e-color);">变现力<br><small>促进销售</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-item" style="border: 2px solid var(--c-color);">协同力<br><small>放大营收</small></div>
-                </div>
-                <p style="text-align: center; margin-top: 1rem;">协同积累知识资产，循环迭代</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- AI Survival Rules Section -->
-    <section id="rules" class="section">
-        <h2 class="section-title">AI时代的十大生存法则</h2>
-        <p class="section-subtitle">基于陈菜根方法论的核心洞察</p>
-
-        <div class="rules-list">
-            <div class="rule-item">
-                <div class="rule-number">01</div>
-                <div class="rule-title">竞争重构 - 对手是"人机协同体"，而非AI</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>技术革命消灭的不是职业，而是拒绝进化的人。竞争的本质已从"人与人"或"人与机"转变为"人机协同体"之间的竞争。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>停止对AI可靠性的纠结，立即掌握AI工具。你的竞争对手是那个已经熟练使用AI的同行。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">02</div>
-                <div class="rule-title">护城河构建 - 隐性知识是AI无法殖民的领地</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>AI只能压缩和检索已被语言化的显性知识。你从失败、直觉和行业浸润中获得的"不可言传"的经验，是真正的稀缺资产。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>系统化你的"踩坑"经历。将那些"说不清楚但就是知道"的直觉和失败案例语言化、结构化。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">03</div>
-                <div class="rule-title">能力升维 - 深度为锚，跨界为网</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>AI在单一领域的"够用"能力极强，但缺乏跨域连线的直觉。基于"比较优势"理论，你的价值不在于单一技能的精深，而在于跨界组合的独特性。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>在一个领域深扎作为锚点，同时在两三个相邻领域建立"够用"的知识。训练"连线直觉"。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">04</div>
-                <div class="rule-title">认知主权 - 注意力是唯一的硬通货</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>信息丰富必然导致注意力匮乏。AI使信息生产成本趋近于零，深度专注力成为最稀缺的资源。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>保护深度阅读与独立思考的能力。在AI拉平生产效率的时代，能长时间专注的人是"认知贵族"。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">05</div>
-                <div class="rule-title">信任溢价 - 信用是唯一的防伪标签</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>基于博弈论，信任是重复博弈中"说到做到"的兑现记录。在AI能伪造一切的时代，"真人且靠谱"产生悖论式升值。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>积累"信号穿透力"。每一次兑现承诺都是在做AI时代最值钱的投资。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">06</div>
-                <div class="rule-title">价值倒转 - 好问题比答案更值钱</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>传统教育训练"回答"，AI让答案不再稀缺。5分钟的解答可外包给AI，55分钟的定义问题只能由人完成。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>培养提问能力。好问题能打开新的可能性空间，而非收窄边界。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">07</div>
-                <div class="rule-title">人类溢价 - 寻找"因为有人，所以值钱"的场景</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>人的在场本身正在成为高价值属性。人类是社会性动物，催产素和镜像神经元不响应AI。越是自动化、冰冷的地方，人的温度越值钱。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>避开纯效率竞争，进入需要情感连接、临终关怀、深度共情或关键决策的领域。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">08</div>
-                <div class="rule-title">反脆弱 - 不确定性是普通人的结构性优势</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>基于塔勒布的"反脆弱"理论，大机构在确定性中有优势，但在不确定性中因流程冗余而笨重。普通人的轻量级和灵活性是应对高速变化的利器。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>小注押注，快速迭代。不要All-in单一判断，建立能吸收错误的生活结构。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">09</div>
-                <div class="rule-title">网络效应 - 持续输出，将认知变为公开资产</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>你的公开表达是知识网络的节点。AI降低了内容生产门槛，但也使"独特观点"更稀缺。不输出即不存在，存在才能吸引价值流动。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>持续输出带有真实经历和独立判断的内容。不是为了表演，而是为了在AI噪音中建立独特节点。</p>
-                </div>
-            </div>
-
-            <div class="rule-item">
-                <div class="rule-number">10</div>
-                <div class="rule-title">能量管理 - 峰值认知用于高价值创造</div>
-                <div class="rule-content">
-                    <p><b>核心逻辑：</b>时间管理是工业时代的逻辑，能量管理是AI时代的逻辑。高阶认知功能（洞察、创造）依赖前额叶皮层的峰值状态，且每日有限。</p>
-                    <p style="margin-top: 0.5rem;"><b>行动策略：</b>将最宝贵的"峰值时间"用于思考最重要问题和创造性工作，将低认知成本的任务交给AI。</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: var(--bg-secondary); border-radius: 12px;">
-            <p style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">遇事不决，就问AI</p>
-            <p style="color: var(--text-secondary);">用100个AI实践消除AI焦虑丨用100亿Token积累AI资产</p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">AI五力模型：从提示词到全流程实战搭建</p>
-            <p>讲师：陈菜根 - 数字经济博主 | OneX 讲师</p>
-            <p style="margin-top: 1rem; font-size: 0.9rem;">© 2026 AI五力模型课程. 基于课程内容生成的静态网站.</p>
-        </div>
-    </footer>
-
-    <script>
-        // Theme Toggle
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-
-        // Mobile Menu Toggle
-        function toggleMenu() {
-            const navLinks = document.querySelector('.nav-links');
-            navLinks.classList.toggle('active');
-        }
-
-        // Close mobile menu on link click
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.querySelector('.nav-links').classList.remove('active');
-            });
-        });
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
+function toggleMenu(){
+  document.getElementById('navMenu').classList.toggle('active');
+}
+document.querySelectorAll('#navMenu a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    document.getElementById('navMenu').classList.remove('active');
+  });
+});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    const t=document.querySelector(this.getAttribute('href'));
+    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+</script>
 </body>
 </html>
